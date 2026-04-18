@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Айзирек (Пух) ❤️</title>
+    <style>
+        :root { --accent: #ff4d94; --bg: #fff5f8; }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, sans-serif; background: var(--bg); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ТИЛ ТАНДОО */
+        .lang-switcher { position: fixed; top: 20px; left: 20px; z-index: 1001; background: white; border: 1px solid var(--accent); border-radius: 20px; overflow: hidden; display: flex; }
+        .lang-btn { padding: 5px 12px; cursor: pointer; font-size: 0.7rem; font-weight: bold; border: none; background: white; outline: none; }
+        .lang-btn.active { background: var(--accent); color: white; }
+
+        /* ПАРОЛЬ (2022) */
+        #password-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .pass-input { padding: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 1.5rem; text-align: center; width: 180px; outline: none; margin-bottom: 20px; }
+        .btn { padding: 12px 40px; border-radius: 30px; border: none; background: var(--accent); color: white; cursor: pointer; font-weight: bold; }
+
+        /* МУЗЫКА */
+        .music-player { position: fixed; top: 20px; right: 20px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 50px; border: 1px solid var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+
+        /* ТАЙМЕР */
+        .counter-box { background: white; padding: 25px 10px; border-radius: 25px; box-shadow: 0 10px 30px rgba(231, 38, 115, 0.1); margin: 20px; text-align: center; }
+        .timer { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
+        .timer-unit { background: var(--accent); color: white; padding: 8px; border-radius: 12px; min-width: 55px; }
+        .timer-unit span { display: block; font-size: 1.2rem; font-weight: bold; }
+
+        /* ЖҮРӨКТӨР */
+        .hearts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 400px; margin: 0 auto; }
+        .heart-item { background: #fff; height: 100px; display: flex; align-items: center; justify-content: center; border-radius: 20px; cursor: pointer; position: relative; border: 1px solid #ffeef0; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .reason-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; padding: 10px; font-size: 0.8rem; transform: translateY(100%); transition: 0.4s; text-align: center; font-weight: bold; }
+        .heart-item.opened .reason-text { transform: translateY(0); }
+
+        /* SCRATCH */
+        .scratch-container { position: relative; width: 300px; height: 180px; margin: 20px auto; touch-action: none; border-radius: 15px; overflow: hidden; border: 2px dashed var(--accent); }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; }
+        .scratch-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 1; text-align: center; }
+
+        /* ВИДЕО ЖАНА ГАЛЕРЕЯ */
+        .video-box { max-width: 350px; margin: 0 auto 20px auto; border-radius: 20px; overflow: hidden; border: 5px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .photo { height: 180px; border-radius: 15px; overflow: hidden; border: 3px solid white; box-shadow: 0 5px 10px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: 0.8s; }
+        .photo img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* КАТ (КОНВЕРТ) */
+        .envelope-area { position: relative; height: 350px; margin-top: 50px; text-align: center; }
+        .envelope { width: 250px; height: 140px; background: #ff758c; margin: 0 auto; border-radius: 0 0 10px 10px; position: relative; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .letter { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 230px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 5; opacity: 0; transition: 0.8s ease; font-size: 0.9rem; pointer-events: none; text-align: left; line-height: 1.5; }
+        .envelope.open + .letter { transform: translate(-50%, -180px); opacity: 1; pointer-events: auto; }
+
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        section { padding: 40px 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="password-screen">
+        <h2 id="pass-title">ПИН-кодду жаз ❤️</h2>
+        <input type="number" id="passInput" class="pass-input" placeholder="****">
+        <button id="pass-btn" class="btn" onclick="checkPassword()">Ачуу ✨</button>
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="switchLang('kg', this)">KG</button>
+            <button class="lang-btn" onclick="switchLang('ru', this)">RU</button>
+        </div>
+
+        <div id="music-btn" class="music-player" onclick="toggleMusic()">🎵 Музыка</div>
+        <audio id="bgMusic" loop><source src="music.mp3" type="audio/mp3"></audio>
+
+        <section>
+            <h1 style="color: var(--accent); font-size: 2.2rem;">Торпок❤️</h1>
+            <div class="counter-box reveal">
+                <p id="together-text" style="color: #888;">Биз биргебиз:</p>
+                <div class="timer">
+                    <div class="timer-unit"><span id="days">0</span><label id="l-days">Күн</label></div>
+                    <div class="timer-unit"><span id="hours">0</span><label id="l-hours">Саат</label></div>
+                    <div class="timer-unit"><span id="mins">0</span><label id="l-mins">Мүн</label></div>
+                    <div class="timer-unit"><span id="secs">0</span><label id="l-secs">Сек</label></div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="why-title" class="reveal">Эмне үчүн жакшы көрөм?</h2>
+            <div class="hearts-grid reveal">
+                <div class="heart-item" onclick="this.classList.toggle('opened')"><div class="heart-icon">❤️</div><div class="reason-text" id="r1">Мени дайыма угасың</div></div>
+                <div class="heart-item" onclick="this.classList.toggle('opened')"><div class="heart-icon">💖</div><div class="reason-text" id="r2">Күлкүң дүйнөнү жарык кылат</div></div>
+                <div class="heart-item" onclick="this.classList.toggle('opened')"><div class="heart-icon">🌟</div><div class="reason-text" id="r3">Сен менин бактымсың</div></div>
+                <div class="heart-item" onclick="this.classList.toggle('opened')"><div class="heart-icon">🍭</div><div class="reason-text" id="r4">Эң таттуу Пухсуң!</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h3 id="scratch-title" class="reveal">Манжаң менен сүрт:</h3>
+            <div class="scratch-container reveal">
+                <div class="scratch-content"><h3 id="scratch-msg">СЕНИ ЖАКШЫ КӨРӨМ Пух! ❤️</h3></div>
+                <canvas id="scratch-canvas" width="300" height="180"></canvas>
+            </div>
+        </section>
+
+        <section>
+            <h2 id="video-title" class="reveal">Биздин видеолор:</h2>
+            <div class="video-box reveal"><video width="100%" controls><source src="video.mp4" type="video/mp4"></video></div>
+            <div class="video-box reveal"><video width="100%" controls><source src="video2.mp4" type="video/mp4"></video></div>
+            <div class="video-box reveal"><video width="100%" controls><source src="video.MOV" type="video/mp4"></video></div>
+        </section>
+
+        <div class="gallery">
+            <div class="photo reveal"><img src="f1.jpg"></div>
+            <div class="photo reveal"><img src="f2.jpg"></div>
+            <div class="photo reveal"><img src="f3.jpg"></div>
+            <div class="photo reveal"><img src="f4.jpg"></div>
+            <div class="photo reveal"><img src="f5.jpg"></div>
+            <div class="photo reveal"><img src="f6.jpg"></div>
+            <div class="photo reveal"><img src="f7.jpg"></div>
+            <div class="photo reveal"><img src="f8.jpg"></div>
+            <div class="photo reveal"><img src="f9.jpg"></div>
+            <div class="photo reveal"><img src="f10.jpg"></div>
+        </div>
+
+        <div class="envelope-area reveal">
+            <div id="env-btn" class="envelope" onclick="this.classList.toggle('open')">САНАРИП КАТ ❤️</div>
+            <div class="letter">
+                <p><b id="let-to">Жаным Пух,</b></p>
+                <p id="let-body">Мен сенин жаныңдамын дайыма! Сен менин жашоомдун эң таттуу бөлүгүсүң. Ар бир кадамыңда сени колдойм.</p>
+                <p align="right"><b id="let-from">Атаңдан</b></p>
+            </div>
+        </div>
+        <section class="reveal" style="margin-top: 50px; padding-bottom: 100px; text-align: center;">
+    <div style="background: white; padding: 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin: 0 20px;">
+        <p id="movD" style="color: #555; line-height: 1.6; font-style: italic;">
+            "Бул кинону көрүп жатып, сени эстедим. Айрыкча <b>2:24</b> мүнөтүн кунт коюп укчу, бул сөздөрду ... Биздин мамилебиз да ушундай бекем болсун."
+        </p>
+        <br>
+        <a href="https://www.youtube.com/watch?v=nMBOZR7LOJM" target="_blank" class="btn" id="movB" style="background: #333; text-decoration: none;">
+            📺 Кинону көрүү
+        </a>
+    </div>
+</section>
+    </div>
+
+    <script>
+        const startDate = new Date(2022, 4, 28);
+        const translations = {
+            kg: {
+                passT: "ПИН-кодду жаз ❤️", passB: "Ачуу ✨", tog: "Биз биргебиз:", d: "Күн", h: "Саат", m: "Мүн", s: "Сек",
+                why: "Эмне үчүн жакшы көрөм?", r1: "Мени дайыма угасың", r2: "Күлкүң дүйнөнү жарык кылат", r3: "Сен менин бактымсың", r4: "Эң таттуу Пухсуң!",
+                scrT: "Манжаң менен сүрт:", scrM: "СЕНИ ЖАКШЫ КӨРӨМ! ❤️", vid: "Биздин видеолор:", env: "САНАРИП КАТ ❤️", lTo: "Жаным Айзирек (Пух),", lB: "Мен сенин жаныңдамын дайыма! Сен менин жашоомдун эң таттуу бөлүгүсүң. Ар бир кадамыңда сени колдойм.", lF: "Атаңдан", mPlay: "🎵 Музыка", mPause: "⏸ Токтотуу"
+            },
+            ru: {
+                passT: "Введите ПИН-код ❤️", passB: "Открыть ✨", tog: "Мы вместе уже:", d: "Дней", h: "Часов", m: "Мин", s: "Сек",
+                why: "Почему я тебя люблю?", r1: "Ты всегда меня слушаешь", r2: "Твоя улыбка светит миру", r3: "Ты моё счастье", r4: "Ты самый сладкий Пух!",
+                scrT: "Сотри пальцем:", scrM: "Я ТЕБЯ ЛЮБЛЮ! ❤️", vid: "Наши видео:", env: "ЦИФРОВОЕ ПИСЬМО ❤️", lTo: "Милая Айзирек (Пух),", lB: "Я всегда рядом с тобой! Ты самая сладкая часть моей жизни. Поддержу тебя в каждом шаге.", lF: "От папы", mPlay: "🎵 Музыка", mPause: "⏸ Стоп"
+            }
+        };
+
+        let currentLang = 'kg';
+
+        function switchLang(lang, btn) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const t = translations[lang];
+            document.getElementById('pass-title').innerText = t.passT;
+            document.getElementById('pass-btn').innerText = t.passB;
+            document.getElementById('together-text').innerText = t.tog;
+            document.getElementById('l-days').innerText = t.d; document.getElementById('l-hours').innerText = t.h;
+            document.getElementById('l-mins').innerText = t.m; document.getElementById('l-secs').innerText = t.s;
+            document.getElementById('why-title').innerText = t.why;
+            document.getElementById('r1').innerText = t.r1; document.getElementById('r2').innerText = t.r2;
+            document.getElementById('r3').innerText = t.r3; document.getElementById('r4').innerText = t.r4;
+            document.getElementById('scratch-title').innerText = t.scrT; document.getElementById('scratch-msg').innerText = t.scrM;
+            document.getElementById('video-title').innerText = t.vid;
+            document.getElementById('env-btn').innerText = t.env;
+            document.getElementById('let-to').innerText = t.lTo; document.getElementById('let-body').innerText = t.lB;
+            document.getElementById('let-from').innerText = t.lF;
+            const m = document.getElementById('bgMusic');
+            document.getElementById('music-btn').innerText = m.paused ? t.mPlay : t.mPause;
+        }
+
+        async function toggleMusic() {
+            const m = document.getElementById('bgMusic');
+            const btn = document.getElementById('music-btn');
+            try {
+                if (m.paused) { await m.play(); btn.innerText = translations[currentLang].mPause; }
+                else { m.pause(); btn.innerText = translations[currentLang].mPlay; }
+            } catch (e) { alert("Экранды басыңыз ❤️"); }
+        }
+
+        function checkPassword() {
+            if (document.getElementById('passInput').value === '2022') {
+                document.getElementById('password-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                initAll();
+            } else { alert("Ката! ПИН: 2022"); }
+        }
+
+        function initAll() {
+            setInterval(() => {
+                const diff = new Date() - startDate;
+                document.getElementById('days').innerText = Math.floor(diff / 86400000);
+                document.getElementById('hours').innerText = Math.floor((diff / 3600000) % 24);
+                document.getElementById('mins').innerText = Math.floor((diff / 60000) % 60);
+                document.getElementById('secs').innerText = Math.floor((diff / 1000) % 60);
+            }, 1000);
+
+            const cvs = document.getElementById('scratch-canvas');
+            const ctx = cvs.getContext('2d');
+            ctx.fillStyle = '#C0C0C0'; ctx.fillRect(0, 0, 300, 180);
+            let draw = false;
+            const pos = (e) => {
+                const rect = cvs.getBoundingClientRect();
+                const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+                const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath(); ctx.arc(x, y, 25, 0, Math.PI*2); ctx.fill();
+            };
+            cvs.onmousedown = cvs.ontouchstart = () => draw = true;
+            window.onmouseup = window.ontouchend = () => draw = false;
+            cvs.onmousemove = cvs.ontouchmove = (e) => { if(draw) pos(e); };
+
+            const obs = new IntersectionObserver(ents => {
+                ents.forEach(en => { if(en.isIntersecting) en.target.classList.add('active'); });
+            }, {threshold: 0.1});
+            document.querySelectorAll('.reveal, .photo').forEach(el => obs.observe(el));
+        }
+    </script>
+</body>
+</html>
